@@ -102,8 +102,9 @@ def extract_json_content(response_text):
     return json.loads(json_part)
 
 def main():
-    st.title("Document Analysis with Custom GPT")
     st.image("WhatsApp Image 2024-10-23 at 4.47.56 PM.jpeg", use_column_width=True)
+    st.title("Document Analysis with Custom GPT")
+    
     uploaded_files = st.file_uploader(
         "Upload PDF or DOCX files", 
         type=["pdf", "docx"], 
