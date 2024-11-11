@@ -112,63 +112,64 @@ def main():
     )
     
     if uploaded_files and st.button("Process"):
-        vector_store = client.beta.vector_stores.create(name="Analyst Reports Vector")
-        file_streams = [file for file in uploaded_files]
-        
-        file_batch = client.beta.vector_stores.file_batches.upload_and_poll(
-            vector_store_id=vector_store.id, files=file_streams
-        )
-        
-        assistant = client.beta.assistants.update(
-            # assistant_id=os.getenv("assistant_id"),
-            assistant_id=st.secrets["assistant_id"],
-            tool_resources={"file_search": {"vector_store_ids": [vector_store.id]}}
-        )
-        
-        extracted_data = summary = ai_review = None
-        
-        for idx, prompt in enumerate(prompts):
-            response = process_prompt(prompt, uploaded_files)
-            if response:
-                if idx == 0:
-                    extracted_data = response
-                elif idx == 1:
-                    summary = response
-                elif idx == 2:
-                    ai_review = response
+        with st.spinner("🔄 Processing..."):
+            vector_store = client.beta.vector_stores.create(name="Analyst Reports Vector")
+            file_streams = [file for file in uploaded_files]
+            
+            file_batch = client.beta.vector_stores.file_batches.upload_and_poll(
+                vector_store_id=vector_store.id, files=file_streams
+            )
+            
+            assistant = client.beta.assistants.update(
+                # assistant_id=os.getenv("assistant_id"),
+                assistant_id=st.secrets["assistant_id"],
+                tool_resources={"file_search": {"vector_store_ids": [vector_store.id]}}
+            )
+            
+            extracted_data = summary = ai_review = None
+            
+            for idx, prompt in enumerate(prompts):
+                response = process_prompt(prompt, uploaded_files)
+                if response:
+                    if idx == 0:
+                        extracted_data = response
+                    elif idx == 1:
+                        summary = response
+                    elif idx == 2:
+                        ai_review = response
 
-        # st.subheader("Responses")
-        if extracted_data:
-            # st.write("**Extracted Fields**:")
-            # st.write(extracted_data)
-            extracted_data_json = extract_json_content(extracted_data)
-            # case_no = extracted_data_json.get("Case #", "")
-            # st.write("Case#", case_no)
-        # if summary:
-        #     st.write("**Summary**:")
-        #     st.write(summary)
-        # if ai_review:
-        #     st.write("**AI Review**:")
-        #     st.write(ai_review)
+            # st.subheader("Responses")
+            if extracted_data:
+                # st.write("**Extracted Fields**:")
+                # st.write(extracted_data)
+                extracted_data_json = extract_json_content(extracted_data)
+                # case_no = extracted_data_json.get("Case #", "")
+                # st.write("Case#", case_no)
+            # if summary:
+            #     st.write("**Summary**:")
+            #     st.write(summary)
+            # if ai_review:
+            #     st.write("**AI Review**:")
+            #     st.write(ai_review)
 
-        # form_url = os.getenv("form_url")
-        form_url = st.secrets["form_url"]
-        prefilled_url = generate_prefilled_url(form_url, extracted_data_json, summary, ai_review)
-        st.subheader("Prefilled Google Form")
-        st.markdown(f"""
-            <a href="{prefilled_url}" target="_blank" style="text-decoration:none;">
-                <button style="
-                    background-color: #4CAF50; 
-                    color: white; 
-                    padding: 10px 20px; 
-                    font-size: 16px; 
-                    border: none; 
-                    border-radius: 5px; 
-                    cursor: pointer;">
-                    Open Google Form
-                </button>
-            </a>
-            """, unsafe_allow_html=True)
+            # form_url = os.getenv("form_url")
+            form_url = st.secrets["form_url"]
+            prefilled_url = generate_prefilled_url(form_url, extracted_data_json, summary, ai_review)
+            st.subheader("Prefilled Google Form")
+            st.markdown(f"""
+                <a href="{prefilled_url}" target="_blank" style="text-decoration:none;">
+                    <button style="
+                        background-color: #4CAF50; 
+                        color: white; 
+                        padding: 10px 20px; 
+                        font-size: 16px; 
+                        border: none; 
+                        border-radius: 5px; 
+                        cursor: pointer;">
+                        Open Google Form
+                    </button>
+                </a>
+                """, unsafe_allow_html=True)
     else:
         st.write("Please upload PDF or DOCX files to proceed and click the 'Process' button.")
 
