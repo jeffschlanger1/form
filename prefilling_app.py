@@ -71,13 +71,39 @@ def generate_prefilled_url(form_url, extracted_data_json, summary, bwc_activatio
             if isinstance(extracted_data_json.get("Officer names", ""), list)
             else extracted_data_json.get("Officer names", "")
         ),
-        # "entry.1265328535": extracted_data_json.get("Officer names", ""),
-        "entry.1022627775": (
+        "entry.1265328535":  (
+            ", ".join(extracted_data_json.get("Officer names", ""))
+            if isinstance(extracted_data_json.get("Officer names", ""), list)
+            else extracted_data_json.get("Officer names", "")
+        ),
+        # "entry.1022627775": (
+        #     ", ".join(extracted_data_json["Age/Race/Gender"].values())
+        #     if isinstance(extracted_data_json.get("Age/Race/Gender", ""), dict)
+        #     else extracted_data_json.get("Age/Race/Gender", "")
+        #     if isinstance(extracted_data_json.get("Age/Race/Gender", ""), list)
+        #     else extracted_data_json.get("Age/Race/Gender", "")
+        # ),
+        "entry.1022627775":(
+            # Case 1: If it's a dictionary, join its values
             ", ".join(extracted_data_json["Age/Race/Gender"].values())
             if isinstance(extracted_data_json.get("Age/Race/Gender", ""), dict)
-            else extracted_data_json.get("Age/Race/Gender", "")
+            else 
+            # Case 2: If it's a list of dictionaries, format and join
+            ", ".join(
+                [
+                    " ".join(str(value) for value in entry.values())
+                    for entry in extracted_data_json["Age/Race/Gender"]
+                ]
+            )
             if isinstance(extracted_data_json.get("Age/Race/Gender", ""), list)
-            else extracted_data_json.get("Age/Race/Gender", "")
+            and all(isinstance(entry, dict) for entry in extracted_data_json["Age/Race/Gender"])
+            else 
+            # Case 3: If it's a list, join its elements
+            ", ".join(extracted_data_json.get("Age/Race/Gender", ""))
+            if isinstance(extracted_data_json.get("Age/Race/Gender", ""), list)
+            else 
+            # Default: Return as-is
+            extracted_data_json.get("Age/Race/Gender", "")
         ),
         "entry.1382641879": summary,
         # "entry.57631527": 123,
@@ -178,6 +204,8 @@ def main():
                 # st.write("**Extracted Fields**:")
                 # st.write(extracted_data)
                 extracted_data_json = extract_json_content(extracted_data)
+                # officers = extracted_data_json.get("Officer names", "")
+                # st.write(officers)
                 # case_no = extracted_data_json.get("Case #", "")
                 # st.write("Case#", case_no)
             # if summary:
