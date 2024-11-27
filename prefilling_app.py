@@ -23,7 +23,7 @@ prompts = [
        - Location
        - Officer names
        - Exact Time (only time)
-       - Age/Race/Gender
+       - Age/Race/Gender From Suspect or Offenders
        - Written by""",
     "Please create a summary of report and make sure to generate response in simple text not in bullets or points or numerical points and don't want these [1] or [2] and 【4:5†source】 in our response",
     """Conduct a thorough analysis of the provided police report and BWC transcript, examining officer conduct and adherence to protocol. For each area listed below, provide an objective assessment based on both documents. Identify instances of exemplary behavior and any potential issues, and note any discrepancies between the police report and BWC transcript. Additionally, provide recommendations for continuous improvement based on your findings.
@@ -83,28 +83,30 @@ def generate_prefilled_url(form_url, extracted_data_json, summary, bwc_activatio
         #     if isinstance(extracted_data_json.get("Age/Race/Gender", ""), list)
         #     else extracted_data_json.get("Age/Race/Gender", "")
         # ),
-        "entry.1022627775":(
+        # 
+        "entry.1022627775": (
             # Case 1: If it's a dictionary, join its values
-            ", ".join(extracted_data_json["Age/Race/Gender"].values())
-            if isinstance(extracted_data_json.get("Age/Race/Gender", ""), dict)
+            ", ".join(str(value) for value in extracted_data_json["Age/Race/Gender From Suspect or Offenders"].values())
+            if isinstance(extracted_data_json.get("Age/Race/Gender From Suspect or Offenders", ""), dict)
             else 
             # Case 2: If it's a list of dictionaries, format and join
             ", ".join(
                 [
                     " ".join(str(value) for value in entry.values())
-                    for entry in extracted_data_json["Age/Race/Gender"]
+                    for entry in extracted_data_json["Age/Race/Gender From Suspect or Offenders"]
                 ]
             )
-            if isinstance(extracted_data_json.get("Age/Race/Gender", ""), list)
-            and all(isinstance(entry, dict) for entry in extracted_data_json["Age/Race/Gender"])
+            if isinstance(extracted_data_json.get("Age/Race/Gender From Suspect or Offenders", ""), list)
+            and all(isinstance(entry, dict) for entry in extracted_data_json["Age/Race/Gender From Suspect or Offenders"])
             else 
             # Case 3: If it's a list, join its elements
-            ", ".join(extracted_data_json.get("Age/Race/Gender", ""))
-            if isinstance(extracted_data_json.get("Age/Race/Gender", ""), list)
+            ", ".join(str(item) for item in extracted_data_json.get("Age/Race/Gender From Suspect or Offenders", ""))
+            if isinstance(extracted_data_json.get("Age/Race/Gender From Suspect or Offenders", ""), list)
             else 
             # Default: Return as-is
-            extracted_data_json.get("Age/Race/Gender", "")
+            extracted_data_json.get("Age/Race/Gender From Suspect or Offenders", "")
         ),
+
         "entry.1382641879": summary,
         # "entry.57631527": 123,
         "entry.1306209529_day": current_date.day,
@@ -206,8 +208,8 @@ def main():
                 extracted_data_json = extract_json_content(extracted_data)
                 # officers = extracted_data_json.get("Officer names", "")
                 # st.write(officers)
-                # case_no = extracted_data_json.get("Case #", "")
-                # st.write("Case#", case_no)
+                subjects = extracted_data_json.get("Age/Race/Gender From Suspect or Offenders", "")
+                st.write("Age/Race/Gender From Suspect or Offenders", subjects)
             # if summary:
                 # st.write("**Summary**:")
                 # st.write(summary)
