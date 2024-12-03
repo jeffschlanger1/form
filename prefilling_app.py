@@ -7,17 +7,13 @@ from dotenv import load_dotenv
 import json
 import urllib.parse
 from datetime import datetime
-import openai
 
 # Load environment variables
 load_dotenv()
 
-api_key = st.secrets["OPENAI_API_KEY"]
-
-openai.api_key = api_key
 # Initialize OpenAI client
 # client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-client = OpenAI()
+client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
 # Define the prompts
 prompts = [
